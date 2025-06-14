@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/WilliamKSilva/go-hexagonal/internal/domain"
+	"github.com/WilliamKSilva/go-hexagonal/internal/domain/repositories"
 )
 
 type UserService struct {
 	domain.UserService
 
-	UserRepo domain.UserRepository
+	UserRepo repositories.UserRepository
 	UuidGen  domain.UUIDGenerator
 	Crypt    domain.Crypt
 }
