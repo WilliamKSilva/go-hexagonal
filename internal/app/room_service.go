@@ -26,3 +26,17 @@ func (s *RoomService) Create(name string, capacity int32) (*domain.Room, error) 
 
 	return roomSaved, nil
 }
+
+func (s *RoomService) Update(name *string, capacity *int32, isAvaiable *bool, maintenanceNote *string) error {
+	err := s.RoomRepository.Update(
+		name,
+		capacity,
+		isAvaiable,
+		maintenanceNote,
+	)
+	if err != nil {
+		return fmt.Errorf("error trying to update room on the database: %w", err)
+	}
+
+	return nil
+}

@@ -20,7 +20,7 @@ func NewRoom(uuid string, name string, capacity int32) Room {
 
 type RoomService interface {
 	Create(name string, capacity int32) (Room, error)
-	Update(uuid string, name string, capacity int32) error
+	Update(name *string, capacity *int32, isAvaiable *int32, maintenanceNote *string) error
 	SetMaintenance(uuid string) error
 	Delete(uuid string) error
 	ListAvaiable() ([]Room, error)
