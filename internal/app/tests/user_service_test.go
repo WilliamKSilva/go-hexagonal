@@ -1,4 +1,4 @@
-package app
+package tests
 
 import (
 	"errors"
@@ -10,92 +10,59 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// === Mock Interfaces ===
-
-type mockUUIDGen struct {
-	UUID string
-	Err  error
-}
-
-func (m *mockUUIDGen) Generate() (string, error) {
-	return m.UUID, m.Err
-}
-
-type mockCrypt struct {
-	Hash string
-	Err  error
-}
-
-func (m *mockCrypt) Encrypt(pw string) (string, error) {
-	return m.Hash, m.Err
-}
-
-type mockUserRepo struct {
-	SavedUser *domain.User
-	Err       error
-}
-
-func (m *mockUserRepo) Save(u domain.User) (*domain.User, error) {
-	if m.Err != nil {
-		return nil, m.Err
-	}
-	m.SavedUser = &u
-	return &u, nil
-}
-
 // === Tests ===
 
 func TestUserService_Create(t *testing.T) {
 	tests := []struct {
 		name          string
-		uuidGen       *mockUUIDGen
-		crypt         *mockCrypt
-		repo          *mockUserRepo
+		uuidGen       *MockUUIDGen
+		crypt         *MockCrypt
+		repo          *MockUserRepo
 		expectErr     bool
 		expectedError string
 	}{
 		{
 			name: "successfully creates user",
-			uuidGen: &mockUUIDGen{
+			uuidGen: &MockUUIDGen{
 				UUID: "uuid-123",
 			},
-			crypt: &mockCrypt{
+			crypt: &MockCrypt{
 				Hash: "hashed-password",
 			},
-			repo:      &mockUserRepo{},
+			repo:      &MockUserRepo{},
 			expectErr: false,
 		},
 		{
 			name: "uuid generator fails",
-			uuidGen: &mockUUIDGen{
+			uuidGen: &MockUUIDGen{
 				Err: errors.New("uuid error"),
 			},
-			crypt:         &mockCrypt{},
-			repo:          &mockUserRepo{},
+			crypt:         &MockCrypt{},
+			repo:          &MockUserRepo{},
 			expectErr:     true,
 			expectedError: "uuid error",
 		},
 		{
 			name: "crypt fails",
-			uuidGen: &mockUUIDGen{
+			uuidGen: &MockUUIDGen{
 				UUID: "uuid-123",
 			},
-			crypt: &mockCrypt{
+			crypt: &MockCrypt{
 				Err: errors.New("crypt error"),
 			},
-			repo:          &mockUserRepo{},
+			repo:          &MockUserRepo{},
 			expectErr:     true,
 			expectedError: "crypt error",
 		},
 		{
 			name: "repository save fails",
-			uuidGen: &mockUUIDGen{
+			uuidGen: &MockUUIDGen{
 				UUID: "uuid-123",
 			},
-			crypt: &mockCrypt{
+			crypt: &MockCrypt{
 				Hash: "hashed-password",
 			},
-			repo: &mockUserRepo{
+			repo: &MockUserRepo{
 				Err: errors.New("db error"),
 			},
 			expectErr:     true,
