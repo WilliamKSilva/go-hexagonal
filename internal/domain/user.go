@@ -14,8 +14,8 @@ type User struct {
 	Role  UserRole `json:"role"`
 }
 
-func NewUser(uuid string, name string, email string, role UserRole) User {
-	return User{
+func NewUser(uuid string, name string, email string, role UserRole) *User {
+	return &User{
 		UUID:  uuid,
 		Name:  name,
 		Email: email,
@@ -24,5 +24,5 @@ func NewUser(uuid string, name string, email string, role UserRole) User {
 }
 
 type UserService interface {
-	Create(name string, email string, role UserRole) (User, error)
+	Create(name string, email string, role UserRole) (*User, error)
 }
