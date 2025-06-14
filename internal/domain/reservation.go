@@ -27,3 +27,8 @@ func NewReservation(uuid string, userUUID string, roomUUID string, startTime tim
 		EndTime:   endTime,
 	}
 }
+
+type ReservationService interface {
+	Create(userUUID string, roomUUID string, startTime time.Time, endTime time.Time) (Reservation, error)
+	ListByUserUUID(userUUID string) ([]Reservation, error)
+}

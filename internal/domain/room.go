@@ -17,3 +17,11 @@ func NewRoom(uuid string, name string, capacity int32) Room {
 		MaintenanceNote: "",
 	}
 }
+
+type RoomService interface {
+	Create(name string, capacity int32) (Room, error)
+	Update(uuid string, name string, capacity int32) error
+	SetMaintenance(uuid string) error
+	Delete(uuid string) error
+	ListAvaiable() ([]Room, error)
+}

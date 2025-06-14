@@ -22,3 +22,7 @@ func NewUser(uuid string, name string, email string, role UserRole) User {
 		Role:  role,
 	}
 }
+
+type UserService interface {
+	Create(name string, email string, role UserRole) (User, error)
+}
