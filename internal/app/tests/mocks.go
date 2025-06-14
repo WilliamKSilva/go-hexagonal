@@ -2,7 +2,7 @@ package tests
 
 import "github.com/WilliamKSilva/go-hexagonal/internal/domain"
 
-// === Mock Interfaces ===
+// === Mock UUID Generator ===
 
 type MockUUIDGen struct {
 	UUID string
@@ -13,6 +13,8 @@ func (m *MockUUIDGen) Generate() (string, error) {
 	return m.UUID, m.Err
 }
 
+// === Mock Crypt implementation ===
+
 type MockCrypt struct {
 	Hash string
 	Err  error
@@ -21,6 +23,8 @@ type MockCrypt struct {
 func (m *MockCrypt) Encrypt(pw string) (string, error) {
 	return m.Hash, m.Err
 }
+
+// === Mock User repo ===
 
 type MockUserRepo struct {
 	SavedUser *domain.User
@@ -35,6 +39,8 @@ func (m *MockUserRepo) Save(u domain.User) (*domain.User, error) {
 	return &u, nil
 }
 
+// === Mock Room repo ===
+
 type MockRoomRepo struct {
 	SavedRoom *domain.Room
 	Err       error
@@ -46,4 +52,12 @@ func (m *MockRoomRepo) Save(r domain.Room) (*domain.Room, error) {
 	}
 	m.SavedRoom = &r
 	return &r, nil
+}
+
+func (m *MockRoomRepo) Update(name *string, capacity *int32, isAvaiable *bool, maintenanceNote *string) error {
+	if m.Err != nil {
+		return m.Err
+	}
+
+	return nil
 }

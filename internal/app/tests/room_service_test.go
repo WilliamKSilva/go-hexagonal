@@ -77,3 +77,45 @@ func TestRoomService_Create(t *testing.T) {
 		}
 	}
 }
+
+func TestRoomService_Update(t *testing.T) {
+	tests := []struct {
+		name          string
+		repo          *MockRoomRepo
+		expectErr     bool
+		expectedError string
+	}{
+		{
+			name:      "successfully updates room",
+			repo:      &MockRoomRepo{},
+			expectErr: false,
+		},
+		{
+			name: "repository save fails",
+			repo: &MockRoomRepo{
+				Err: errors.New("repository fails"),
+			},
+			expectErr:     true,
+			expectedError: "repository fails",
+		},
+	}
+
+	for _, tt := range tests {
+		svc := app.RoomService{
+			RoomRepository: tt.repo,
+		}
+
+		name := "room-2"
+		capacity := int32(10)
+		isAvaiable := false
+		maintenanceNote := "Fixing air conditioner"
+
+		err := svc.Update(&name, &capacity, &isAvaiable, &maintenanceNote)
+		if tt.expectErr {
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tt.expectedError)
+		} else {
+			require.NoError(t, err)
+		}
+	}
+}
