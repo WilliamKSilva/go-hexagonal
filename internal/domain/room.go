@@ -30,6 +30,7 @@ type RoomService interface {
 	Create(name string, capacity int32) (Room, error)
 	Update(name *string, capacity *int32, status *int32, maintenanceNote *string) error
 	StartMaintenance(maintenanceNote string) error
+	EndMaintenance() error
 	Delete(uuid string) error
 	ListAvaiable() ([]Room, error)
 }
