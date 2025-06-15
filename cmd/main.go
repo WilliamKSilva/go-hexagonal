@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"github.com/WilliamKSilva/go-hexagonal/internal/adapters/http"
+)
 
 func main() {
-	fmt.Println("Hello golang")
+	// Initialize HTTP server
+	http.NewServer().Run()
 }
