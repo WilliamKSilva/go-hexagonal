@@ -54,7 +54,7 @@ func (m *MockRoomRepo) Save(r domain.Room) (*domain.Room, error) {
 	return &r, nil
 }
 
-func (m *MockRoomRepo) Update(name *string, capacity *int32, isAvaiable *bool, maintenanceNote *string) error {
+func (m *MockRoomRepo) Update(name *string, capacity *int32, status *domain.RoomStatus, maintenanceNote *string) error {
 	if m.Err != nil {
 		return m.Err
 	}

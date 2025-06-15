@@ -58,7 +58,7 @@ func TestRoomService_Create(t *testing.T) {
 			UUID:            "uuid-123",
 			Name:            "room-1",
 			Capacity:        4,
-			IsAvaiable:      true,
+			Status:          domain.FREE,
 			MaintenanceNote: "",
 		}
 
@@ -72,7 +72,7 @@ func TestRoomService_Create(t *testing.T) {
 			assert.Equal(t, room.UUID, expect.UUID)
 			assert.Equal(t, room.Name, expect.Name)
 			assert.Equal(t, room.Capacity, expect.Capacity)
-			assert.Equal(t, room.IsAvaiable, expect.IsAvaiable)
+			assert.Equal(t, room.Status, expect.Status)
 			assert.Equal(t, room.MaintenanceNote, expect.MaintenanceNote)
 		}
 	}
@@ -107,10 +107,10 @@ func TestRoomService_Update(t *testing.T) {
 
 		name := "room-2"
 		capacity := int32(10)
-		isAvaiable := false
+		status := domain.FREE
 		maintenanceNote := "Fixing air conditioner"
 
-		err := svc.Update(&name, &capacity, &isAvaiable, &maintenanceNote)
+		err := svc.Update(&name, &capacity, &status, &maintenanceNote)
 		if tt.expectErr {
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tt.expectedError)
