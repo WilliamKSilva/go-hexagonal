@@ -96,7 +96,7 @@ func ParseBody[T any](w http.ResponseWriter, r *http.Request, route string) T {
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("%s: json response encoding error %w", route, err)
+			log.Printf("%s: json response encoding error %s", route, err.Error())
 			http.Error(w, res.Message, res.Code)
 		}
 
@@ -106,11 +106,11 @@ func ParseBody[T any](w http.ResponseWriter, r *http.Request, route string) T {
 
 	err = json.Unmarshal(b, &payload)
 	if err != nil {
-		log.Println("%s: json body unmarshal error %w", route, err)
+		log.Printf("%s: json body unmarshal error %s", route, err.Error())
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("%s: json response encoding error %w", route, err)
+			log.Printf("%s: json response encoding error %s", route, err.Error())
 			http.Error(w, res.Message, res.Code)
 		}
 
