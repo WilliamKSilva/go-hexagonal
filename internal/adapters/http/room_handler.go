@@ -28,7 +28,7 @@ func (h RoomHandlerWithoutPaths) ServeHTTP(w http.ResponseWriter, r *http.Reques
 }
 
 func (h RoomHandlerWithoutPaths) Create(w http.ResponseWriter, r *http.Request) {
-	payload := ParseBody[requests.CreateRoom](w, r)
+	payload := ParseBody[requests.CreateRoom](w, r, "create room")
 	log.Println(payload)
 
 	w.WriteHeader(http.StatusCreated)

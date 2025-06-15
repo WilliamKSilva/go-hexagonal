@@ -86,17 +86,17 @@ func ParseRoute(url string) []string {
 	return parts
 }
 
-func ParseBody[T any](w http.ResponseWriter, r *http.Request) T {
+func ParseBody[T any](w http.ResponseWriter, r *http.Request, route string) T {
 	var payload T
 	var res responses.HTTPResponse
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("create room: error trying to read body bytes")
+		log.Printf("%s: error trying to read body bytes", route)
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("create room: json response encoding error %w", err)
+			log.Println("%s: json response encoding error %w", route, err)
 			http.Error(w, res.Message, res.Code)
 		}
 
@@ -106,11 +106,11 @@ func ParseBody[T any](w http.ResponseWriter, r *http.Request) T {
 
 	err = json.Unmarshal(b, &payload)
 	if err != nil {
-		log.Println("create room: json body unmarshal error %w", err)
+		log.Println("%s: json body unmarshal error %w", route, err)
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("create room: json response encoding error %w", err)
+			log.Println("%s: json response encoding error %w", route, err)
 			http.Error(w, res.Message, res.Code)
 		}
 
