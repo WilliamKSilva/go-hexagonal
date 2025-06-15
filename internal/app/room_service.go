@@ -74,6 +74,35 @@ func (s *RoomService) StartMaintenance(roomUUID string, maintenanceNote string) 
 	return nil
 }
 
+func (s *RoomService) EndMaintenance(roomUUID string) error {
+	room, err := s.RoomRepository.SearchByUUID(roomUUID)
+	if err != nil {
+		return fmt.Errorf("error trying to search room on the database: %w", err)
+	}
+
+	if room == nil {
+		return fmt.Errorf("room not found")
+	}
+
+	if room.Status != domain.MAINTENANCE {
+		return fmt.Errorf("room is not under maintenance")
+	}
+
+	status := domain.FREE
+
+	err = s.RoomRepository.Update(
+		nil,
+		nil,
+		&status,
+		nil,
+	)
+	if err != nil {
+		return fmt.Errorf("error trying to update room on the database: %w", err)
+	}
+
+	return nil
+}
+
 func (s *RoomService) Delete(roomUUID string) error {
 	room, err := s.RoomRepository.SearchByUUID(roomUUID)
 	if err != nil {
