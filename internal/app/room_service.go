@@ -12,6 +12,13 @@ type RoomService struct {
 	UUIDGenerator  domain.UUIDGenerator
 }
 
+func NewRoomService(roomRepository repositories.RoomRepository, uuidGenerator domain.UUIDGenerator) *RoomService {
+	return &RoomService{
+		RoomRepository: roomRepository,
+		UUIDGenerator:  uuidGenerator,
+	}
+}
+
 func (s *RoomService) Create(name string, capacity int32) (*domain.Room, error) {
 	uuid, err := s.UUIDGenerator.Generate()
 	if err != nil {
