@@ -62,6 +62,14 @@ func (m *MockRoomRepo) Update(name *string, capacity *int32, status *domain.Room
 	return nil
 }
 
+func (m *MockRoomRepo) Delete(uuid string) error {
+	if m.Err != nil {
+		return m.Err
+	}
+
+	return nil
+}
+
 func (m *MockRoomRepo) SearchByUUID(uuid string) (*domain.Room, error) {
 	if m.Err != nil {
 		return nil, m.Err

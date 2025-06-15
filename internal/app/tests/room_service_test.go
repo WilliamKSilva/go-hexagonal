@@ -149,7 +149,7 @@ func TestRoomService_StartMaintenance(t *testing.T) {
 			expectedError: "repository fails",
 		},
 		{
-			name: "repository user not found",
+			name: "repository room not found",
 			repo: &MockRoomRepo{
 				SavedRoom: nil,
 			},
@@ -192,6 +192,87 @@ func TestRoomService_StartMaintenance(t *testing.T) {
 		}
 
 		err := svc.StartMaintenance("uuid-123", "fixing air conditioner")
+		if tt.expectErr {
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tt.expectedError)
+		} else {
+			require.NoError(t, err)
+		}
+	}
+}
+
+func TestRoomService_Delete(t *testing.T) {
+	tests := []struct {
+		name          string
+		repo          *MockRoomRepo
+		expectErr     bool
+		expectedError string
+	}{
+		{
+			name: "successfully deletes room",
+			repo: &MockRoomRepo{
+				SavedRoom: &domain.Room{
+					UUID:            "uuid-123",
+					Name:            "room-123",
+					Capacity:        4,
+					Status:          domain.FREE,
+					MaintenanceNote: "",
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "repository search by UUID fails",
+			repo: &MockRoomRepo{
+				Err: errors.New("repository fails"),
+			},
+			expectErr:     true,
+			expectedError: "repository fails",
+		},
+		{
+			name: "repository room not found",
+			repo: &MockRoomRepo{
+				SavedRoom: nil,
+			},
+			expectErr:     true,
+			expectedError: "room not found",
+		},
+		{
+			name: "room is currently on maintenace",
+			repo: &MockRoomRepo{
+				SavedRoom: &domain.Room{
+					UUID:            "uuid-123",
+					Name:            "room-123",
+					Capacity:        4,
+					Status:          domain.MAINTENANCE,
+					MaintenanceNote: "fixing bed",
+				},
+			},
+			expectErr:     true,
+			expectedError: "room is currently on maintenance",
+		},
+		{
+			name: "room is currently booked",
+			repo: &MockRoomRepo{
+				SavedRoom: &domain.Room{
+					UUID:            "uuid-123",
+					Name:            "room-123",
+					Capacity:        4,
+					Status:          domain.BOOKED,
+					MaintenanceNote: "",
+				},
+			},
+			expectErr:     true,
+			expectedError: "room is currently booked",
+		},
+	}
+
+	for _, tt := range tests {
+		svc := app.RoomService{
+			RoomRepository: tt.repo,
+		}
+
+		err := svc.Delete("uuid-123")
 		if tt.expectErr {
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tt.expectedError)
