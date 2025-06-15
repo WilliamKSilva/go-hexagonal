@@ -40,3 +40,36 @@ func (s *RoomService) Update(name *string, capacity *int32, status *domain.RoomS
 
 	return nil
 }
+
+func (s *RoomService) StartMaintenance(roomUUID string, maintenanceNote string) error {
+	room, err := s.RoomRepository.SearchByUUID(roomUUID)
+	if err != nil {
+		return fmt.Errorf("error trying to search room on the database: %w", err)
+	}
+
+	if room == nil {
+		return fmt.Errorf("room not found")
+	}
+
+	if room.Status == domain.MAINTENANCE {
+		return fmt.Errorf("room is already on maintenance")
+	}
+
+	if room.Status == domain.BOOKED {
+		return fmt.Errorf("room is currently booked")
+	}
+
+	status := domain.MAINTENANCE
+
+	err = s.RoomRepository.Update(
+		nil,
+		nil,
+		&status,
+		&maintenanceNote,
+	)
+	if err != nil {
+		return fmt.Errorf("error trying to update room on the database: %w", err)
+	}
+
+	return nil
+}
