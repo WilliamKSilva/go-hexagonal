@@ -1,11 +1,14 @@
 package http
 
 import (
+	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/WilliamKSilva/go-hexagonal/internal/adapters/http/responses"
 	"github.com/WilliamKSilva/go-hexagonal/internal/app"
 	"github.com/WilliamKSilva/go-hexagonal/internal/app/tests"
 	"github.com/WilliamKSilva/go-hexagonal/internal/domain"
@@ -81,4 +84,41 @@ func ParseRoute(url string) []string {
 	parts := strings.Split(path, "/")
 
 	return parts
+}
+
+func ParseBody[T any](w http.ResponseWriter, r *http.Request) T {
+	var payload T
+	var res responses.HTTPResponse
+
+	b, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("create room: error trying to read body bytes")
+		res = responses.NewInternalServerError("create room")
+		b, err = json.Marshal(res)
+		if err != nil {
+			log.Println("create room: json response encoding error %w", err)
+			http.Error(w, res.Message, res.Code)
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		w.Write(b)
+	}
+
+	err = json.Unmarshal(b, &payload)
+	if err != nil {
+		log.Println("create room: json body unmarshal error %w", err)
+		res = responses.NewInternalServerError("create room")
+		b, err = json.Marshal(res)
+		if err != nil {
+			log.Println("create room: json response encoding error %w", err)
+			http.Error(w, res.Message, res.Code)
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(b)
+	}
+
+	log.Println(payload)
+
+	return payload
 }
