@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -65,7 +66,8 @@ func (s *Server) Run() error {
 
 	// Setup HTTP handlers
 	roomHandlerWithoutPaths := RoomHandlerWithoutPaths{
-		validate: s.validate,
+		validate:    s.validate,
+		roomService: s.roomService,
 	}
 	http.HandleFunc("/rooms", roomHandlerWithoutPaths.ServeHTTP)
 
@@ -86,39 +88,47 @@ func ParseRoute(url string) []string {
 	return parts
 }
 
-func ParseBody[T any](w http.ResponseWriter, r *http.Request, route string) T {
+func ParseBody[T any](w http.ResponseWriter, r *http.Request, route string) (T, error) {
 	var payload T
-	var res responses.HTTPResponse
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("%s: error trying to read body bytes", route)
-		res = responses.NewInternalServerError("create room")
-		b, err = json.Marshal(res)
-		if err != nil {
-			log.Printf("%s: json response encoding error %s", route, err.Error())
-			http.Error(w, res.Message, res.Code)
-		}
-
-		w.WriteHeader(http.StatusCreated)
-		w.Write(b)
+		return payload, fmt.Errorf("internal server error")
 	}
 
 	err = json.Unmarshal(b, &payload)
 	if err != nil {
-		log.Printf("%s: json body unmarshal error %s", route, err.Error())
-		res = responses.NewInternalServerError("create room")
-		b, err = json.Marshal(res)
-		if err != nil {
-			log.Printf("%s: json response encoding error %s", route, err.Error())
-			http.Error(w, res.Message, res.Code)
-		}
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(b)
+		return payload, fmt.Errorf("internal server error")
 	}
 
-	log.Println(payload)
+	return payload, nil
+}
 
-	return payload
+func MakeSuccessResponse(w http.ResponseWriter, payload any, code int, route string) {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		// If can't parse JSON payload response for any reason
+		// fallback to return body as raw bytes
+		w.Write([]byte(fmt.Sprintf("%s: internal server error", route)))
+		return
+	}
+
+	w.WriteHeader(code)
+	w.Write(b)
+}
+
+func MakeErrorResponse(w http.ResponseWriter, res responses.HTTPResponse, route string) {
+	res.Message = fmt.Sprintf("%s: %s", route, res.Message)
+	b, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		// If can't parse JSON payload response for any reason
+		// fallback to return body as raw bytes
+		w.Write([]byte(fmt.Sprintf("%s: internal server error", route)))
+		return
+	}
+
+	w.WriteHeader(res.Code)
+	w.Write(b)
 }

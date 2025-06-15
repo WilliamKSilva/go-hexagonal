@@ -8,9 +8,9 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func ValidateFields(validate *validator.Validate, request string, payload any) error {
+func ValidateFields(validate *validator.Validate, route string, payload any) error {
 	err := validate.Struct(payload)
-	var msg string = fmt.Sprintf("%s: fields are missing", request)
+	var msg string = fmt.Sprintf("%s: fields are missing", route)
 	if err != nil {
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
