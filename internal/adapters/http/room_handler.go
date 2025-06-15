@@ -38,10 +38,11 @@ func (h RoomHandlerWithoutPaths) Create(w http.ResponseWriter, r *http.Request) 
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
+		log.Printf("create room: error trying to read body bytes")
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("create room: json encoding error %w", err)
+			log.Println("create room: json response encoding error %w", err)
 			http.Error(w, res.Message, res.Code)
 		}
 
@@ -51,14 +52,29 @@ func (h RoomHandlerWithoutPaths) Create(w http.ResponseWriter, r *http.Request) 
 
 	err = json.Unmarshal(b, &payload)
 	if err != nil {
+		log.Println("create room: json body unmarshal error %w", err)
 		res = responses.NewInternalServerError("create room")
 		b, err = json.Marshal(res)
 		if err != nil {
-			log.Println("create room: json encoding error %w", err)
+			log.Println("create room: json response encoding error %w", err)
 			http.Error(w, res.Message, res.Code)
 		}
 
 		w.WriteHeader(http.StatusInternalServerError)
+		w.Write(b)
+	}
+
+	err = ValidateFields(h.validate, "create room", payload)
+	if err != nil {
+		res.Code = http.StatusBadRequest
+		res.Message = err.Error()
+		b, err = json.Marshal(res)
+		if err != nil {
+			log.Println("create room: json response encoding error %w", err)
+			http.Error(w, res.Message, res.Code)
+		}
+
+		w.WriteHeader(res.Code)
 		w.Write(b)
 	}
 

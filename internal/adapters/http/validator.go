@@ -3,23 +3,29 @@ package http
 import (
 	"errors"
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
 
-func ValidateFields[T any](validate *validator.Validate, payload T) []string {
+func ValidateFields(validate *validator.Validate, request string, payload any) error {
 	err := validate.Struct(payload)
-	var errs []string
+	var msg string = fmt.Sprintf("%s: fields are missing", request)
 	if err != nil {
-		log.Println(err)
 		var validateErrs validator.ValidationErrors
 		if errors.As(err, &validateErrs) {
-			for _, e := range validateErrs {
-				errs = append(errs, fmt.Sprintf("%s is required", e.Field()))
+			for i, e := range validateErrs {
+				msg = fmt.Sprintf("%s '%s'", msg, strings.ToLower(e.Field()))
+
+				// Not add comma after the last missing field
+				if i < len(validateErrs)-1 {
+					msg += ","
+				}
 			}
 		}
+
+		return errors.New(msg)
 	}
 
-	return errs
+	return nil
 }
