@@ -201,6 +201,73 @@ func TestRoomService_StartMaintenance(t *testing.T) {
 	}
 }
 
+func TestRoomService_EndMaintenance(t *testing.T) {
+	tests := []struct {
+		name          string
+		repo          *MockRoomRepo
+		expectErr     bool
+		expectedError string
+	}{
+		{
+			name: "successfully ends maintenance",
+			repo: &MockRoomRepo{
+				SavedRoom: &domain.Room{
+					UUID:            "uuid-123",
+					Name:            "room-123",
+					Capacity:        4,
+					Status:          domain.MAINTENANCE,
+					MaintenanceNote: "",
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "repository search by UUID fails",
+			repo: &MockRoomRepo{
+				Err: errors.New("repository fails"),
+			},
+			expectErr:     true,
+			expectedError: "repository fails",
+		},
+		{
+			name: "repository room not found",
+			repo: &MockRoomRepo{
+				SavedRoom: nil,
+			},
+			expectErr:     true,
+			expectedError: "room not found",
+		},
+		{
+			name: "room is not on maintenace",
+			repo: &MockRoomRepo{
+				SavedRoom: &domain.Room{
+					UUID:            "uuid-123",
+					Name:            "room-123",
+					Capacity:        4,
+					Status:          domain.FREE,
+					MaintenanceNote: "",
+				},
+			},
+			expectErr:     true,
+			expectedError: "room is not under maintenance",
+		},
+	}
+
+	for _, tt := range tests {
+		svc := app.RoomService{
+			RoomRepository: tt.repo,
+		}
+
+		err := svc.EndMaintenance("uuid-123")
+		if tt.expectErr {
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tt.expectedError)
+		} else {
+			require.NoError(t, err)
+		}
+	}
+}
+
 func TestRoomService_Delete(t *testing.T) {
 	tests := []struct {
 		name          string
