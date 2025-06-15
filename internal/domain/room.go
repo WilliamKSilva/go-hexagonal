@@ -1,11 +1,19 @@
 package domain
 
+type RoomStatus int
+
+const (
+	FREE RoomStatus = iota
+	BOOKED
+	MAINTENANCE
+)
+
 type Room struct {
-	UUID            string `json:"uuid"`
-	Name            string `json:"name"`
-	Capacity        int32  `json:"capacity"`
-	IsAvaiable      bool   `json:"is_avaiable"`
-	MaintenanceNote string `json:"maintenance_note"`
+	UUID            string     `json:"uuid"`
+	Name            string     `json:"name"`
+	Capacity        int32      `json:"capacity"`
+	Status          RoomStatus `json:"status"`
+	MaintenanceNote string     `json:"maintenance_note"`
 }
 
 func NewRoom(uuid string, name string, capacity int32) Room {
@@ -13,15 +21,14 @@ func NewRoom(uuid string, name string, capacity int32) Room {
 		UUID:            uuid,
 		Name:            name,
 		Capacity:        capacity,
-		IsAvaiable:      true,
+		Status:          FREE,
 		MaintenanceNote: "",
 	}
 }
 
 type RoomService interface {
 	Create(name string, capacity int32) (Room, error)
-	Update(name *string, capacity *int32, isAvaiable *int32, maintenanceNote *string) error
-	SetMaintenance(uuid string) error
+	Update(name *string, capacity *int32, status *int32, maintenanceNote *string) error
 	Delete(uuid string) error
 	ListAvaiable() ([]Room, error)
 }
