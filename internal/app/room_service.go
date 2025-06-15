@@ -27,11 +27,11 @@ func (s *RoomService) Create(name string, capacity int32) (*domain.Room, error) 
 	return roomSaved, nil
 }
 
-func (s *RoomService) Update(name *string, capacity *int32, isAvaiable *bool, maintenanceNote *string) error {
+func (s *RoomService) Update(name *string, capacity *int32, status *domain.RoomStatus, maintenanceNote *string) error {
 	err := s.RoomRepository.Update(
 		name,
 		capacity,
-		isAvaiable,
+		status,
 		maintenanceNote,
 	)
 	if err != nil {
